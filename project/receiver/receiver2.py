@@ -52,8 +52,7 @@ def process_message(message):
             else:
                 labels_log_entry.append(tkinter.Label(print_log_window, text=(
                     "Card %s, logged on the terminal %s at time %s" % (log_entry[1], log_entry[2], log_entry[0]))))
-            
-            prev_entry = log_entry
+                prev_entry = log_entry
             
         for label in labels_log_entry:
             label.pack(side="top")

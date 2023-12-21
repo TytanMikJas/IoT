@@ -1,11 +1,14 @@
 import neopixel
 import board
 from config import *
+
 import lib.oled.SSD1331 as SSD1331
+
 
 
 pixels = neopixel.NeoPixel(board.D18, 8, brightness=1.0/32, auto_write=False)
 active_pixels = [False for _ in len(pixels)]
+
 current_pixel = 0
 
 pixel_on = (75, 255, 100)
@@ -64,6 +67,7 @@ def greenButtonPressedCallback(channel):
         disp.ShowImage(work_ended_image, 0, 0)
 
         
+
 def work():
     global isWorking
     isWorking = True
