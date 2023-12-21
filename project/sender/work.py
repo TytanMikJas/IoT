@@ -6,6 +6,7 @@ from config import *
 pixels = neopixel.NeoPixel(board.D18, 8, brightness=1.0/32, auto_write=False)
 active_pixels = [False for _ in len(pixels)]
 current_pixel = 1 
+isWorking = False
 
 pixel_on = (255, 50, 50)
 pixel_off = (0, 0, 0)
@@ -40,8 +41,15 @@ def greenButtonPressedCallback(channel):
     active_pixels[current_pixel] != active_pixels[current_pixel]        
 
 
-
 def work():
+    global isWorking
+    isWorking = True
     GPIO.add_event_detect(buttonGreen, GPIO.FALLING, callback=greenButtonPressedCallback, bouncetime=200)
     GPIO.add_event_detect(encoderLeft, GPIO.FALLING, callback=encoderTurnedCallback, bouncetime=200)
+
+def endWork():
+    global isWorking
+    isWorking = False
+    GPIO.remove_event_detect(buttonGreen)
+    GPIO.remove_event_detect(encoderLeft)
     

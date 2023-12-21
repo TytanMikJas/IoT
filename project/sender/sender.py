@@ -6,6 +6,7 @@ import time
 import RPi.GPIO as GPIO
 from config import *
 from mfrc522 import MFRC522
+from work import *
 
 executing = True
 isUnlocked = True
@@ -47,10 +48,13 @@ def blink():
 
 def rfidRead():
     global executing
+    global isWorking
     global isUnlocked
     global scan_counter
     MIFAREReader = MFRC522()
     last_scan = datetime.timestamp(datetime.now()) 
+    prev_card = None
+
     while executing:
         
         scan_counter += 1
@@ -67,9 +71,23 @@ def rfidRead():
                         num += uid[i] << (i*8)
                     buzzer()
                     blink()
-                    call_worker(num, dt)
-                    last_scan = datetime.timestamp(datetime.now())
-                    isUnlocked = False
+
+                    if prev_card != None and prev_card == num:
+                        if isWorking:
+                            display_gun()
+                            aggresive_buzzer()
+                        else:
+                            call_worker(num, dt)
+                            last_scan = datetime.timestamp(datetime.now())
+                            isUnlocked = False
+                            prev_card = None
+                    elif prev_card == None:
+                        call_worker(num, dt)
+                        last_scan = datetime.timestamp(datetime.now())
+                        isUnlocked = False
+                        prev_card = num
+                        work()
+
             elif scan_counter%2 == 0:
                 isUnlocked = True
 
