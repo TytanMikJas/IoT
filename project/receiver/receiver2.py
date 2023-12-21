@@ -20,7 +20,7 @@ def buttonPressedCallback(channel):
     global executing
     executing = False
 
-def process_message(client, userdata, message):
+def process_message(message):
     message_decoded = (str(message.payload.decode("utf-8"))).split(".")
 
     if message_decoded[0] == "Client connected" or message_decoded[0] == "Client disconnected":
@@ -33,54 +33,44 @@ def process_message(client, userdata, message):
         #inserting the log into the database
         cursor.execute("INSERT INTO workers_log VALUES (?,?,?)",
         (message_decoded[1], message_decoded[0], message_decoded[2]))
-        
+
+        #printing the log to the window
+        cursor.execute("SELECT * FROM workers_log")
+        log_entries = cursor.fetchall()
+        labels_log_entry = []
+        print_log_window = tkinter.Tk()
+
+        prev_entry = None
+
+        for log_entry in log_entries:
+
+            if prev_entry != None and prev_entry[1] == log_entry[1]:
+                time_worked = str(datetime.strptime(log_entry[0], "%Y-%m-%d %H:%M:%S.%f") - datetime.strptime(prev_entry[0], "%Y-%m-%d %H:%M:%S.%f"))
+                labels_log_entry.append(tkinter.Label(print_log_window, text=(
+                    "Card %s, logged out on the terminal %s at time %s and worked for %s" % (log_entry[1], log_entry[2], log_entry[0], time_worked))))
+                prev_entry = None
+            else:
+                labels_log_entry.append(tkinter.Label(print_log_window, text=(
+                    "Card %s, logged on the terminal %s at time %s" % (log_entry[1], log_entry[2], log_entry[0]))))
+            
+            prev_entry = log_entry
+            
+        for label in labels_log_entry:
+            label.pack(side="top")
+
         connention.commit()
         connention.close()
 
-
-
-def print_log_to_window():
-    connention = sqlite3.connect("workers.db")
-    cursor = connention.cursor()
-    cursor.execute("SELECT * FROM workers_log")
-    log_entries = cursor.fetchall()
-    labels_log_entry = []
-    print_log_window = tkinter.Tk()
-
-    prev_entry = None
-
-    for log_entry in log_entries:
-
-        if prev_entry != None and prev_entry[1] == log_entry[1]:
-            time_worked = datetime.strptime(log_entry[0], "%Y-%m-%d %H:%M:%S.%f") - datetime.strptime(prev_entry[0], "%Y-%m-%d %H:%M:%S.%f")
-            labels_log_entry.append(tkinter.Label(print_log_window, text=(
-                "Card %s, logged out on the terminal %s at time %s and worked for %s" % (log_entry[1], log_entry[2], log_entry[0], time_worked))))
-            prev_entry = None
-        else:
-            labels_log_entry.append(tkinter.Label(print_log_window, text=(
-                "Card %s, logged on the terminal %s at time %s" % (log_entry[1], log_entry[2], log_entry[0]))))
-        
-        prev_entry = log_entry
-        
-    for label in labels_log_entry:
-        label.pack(side="top")
-
-    connention.commit()
-    connention.close()
-
-    print_log_window.mainloop()
+        print_log_window.mainloop()
 
 def create_main_window():
     window.geometry("250x100")
     window.title("Workers logs")
     label = tkinter.Label(window, text="Listening to the MQTT")
     exit_button = tkinter.Button(window, text="Stop", command=window.quit)
-    print_log_button = tkinter.Button(
-        window, text="Print log", command=print_log_to_window)
+
     label.pack()
     exit_button.pack(side="right")
-    print_log_button.pack(side="right")
-
 
 def connect_to_broker():
     client.connect(broker)
