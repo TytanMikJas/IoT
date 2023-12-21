@@ -74,8 +74,7 @@ def rfidRead():
 
                     if prev_card != None and prev_card == num:
                         if isWorking:
-                            display_gun()
-                            aggresive_buzzer()
+                            punishment()
                         else:
                             call_worker(num, dt)
                             last_scan = datetime.timestamp(datetime.now())

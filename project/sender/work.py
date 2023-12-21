@@ -1,15 +1,18 @@
 import neopixel
 import board
 from config import *
+import time
+from PIL import Image, ImageDraw, ImageFont
 
 import lib.oled.SSD1331 as SSD1331
-
-
 
 pixels = neopixel.NeoPixel(board.D18, 8, brightness=1.0/32, auto_write=False)
 active_pixels = [False for _ in len(pixels)]
 
 current_pixel = 0
+disp = SSD1331.SSD1331()
+disp.Init()
+disp.clear()
 
 pixel_on = (75, 255, 100)
 pixel_off = (0, 0, 0)
@@ -63,10 +66,14 @@ def greenButtonPressedCallback(channel):
     
     if (work_end):
         end_work()
-        disp = SSD1331.SSD1331()
-        disp.ShowImage(work_ended_image, 0, 0)
+        disp.ShowImage(Image.open('happyman.jpg').resize((disp.width, disp.height)), 0, 0)
 
-        
+def punishment():
+    disp.ShowImage(Image.open('gunman.jpg').resize((disp.width, disp.height)), 0, 0)
+
+    GPIO.output(buzzerPin, GPIO.LOW)
+    time.sleep(3)
+    GPIO.output(buzzerPin, GPIO.HIGH)
 
 def work():
     global isWorking
