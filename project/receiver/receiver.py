@@ -30,7 +30,6 @@ def process_message(client, userdata, message):
         connention = sqlite3.connect("workers.db")
         cursor = connention.cursor()
 
-        #inserting the log into the database
         cursor.execute("INSERT INTO workers_log VALUES (?,?,?)",
         (message_decoded[1], message_decoded[0], message_decoded[2]))
 

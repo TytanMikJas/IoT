@@ -1,0 +1,10 @@
+1. wziąć Rasperry 8 + 9 
+2. kabel C -> ethernet -> do gniazdka
+3. połączyć się z Rasperry
+4. python -m pip install --upgrade pip
+5. sudo  apt update + apt upgrade
+6. sudo pip install paho-mqtt
+7. mosquito setup, wysłać 2 wiadomości tekstowe
+8. oddać projekt
+9. sudo poweroff
+10. gniazdko -> ethernet -> kabel C
