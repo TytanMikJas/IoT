@@ -7,11 +7,11 @@ import tkinter
 import RPi.GPIO as GPIO
 from datetime import datetime
 from config import *
-from project.receiver.create_database import *
+from create_database import *
 
 executing = True
 
-broker = "localhost"
+broker = "10.108.33.129"
 client = mqtt.Client()
 
 window = tkinter.Tk()
@@ -20,7 +20,8 @@ def buttonPressedCallback(channel):
     global executing
     executing = False
 
-def process_message(message):
+def process_message(client, userdata, message):
+    print('got message')
     message_decoded = (str(message.payload.decode("utf-8"))).split(".")
 
     if message_decoded[0] == "Client connected" or message_decoded[0] == "Client disconnected":
@@ -45,7 +46,7 @@ def process_message(message):
         for log_entry in log_entries:
 
             if prev_entry != None and prev_entry[1] == log_entry[1]:
-                time_worked = str(datetime.strptime(log_entry[0], "%Y-%m-%d %H:%M:%S.%f") - datetime.strptime(prev_entry[0], "%Y-%m-%d %H:%M:%S.%f"))
+                time_worked = str(datetime.strptime(log_entry[0], "%Y-%m-%d %H:%M:%S") - datetime.strptime(prev_entry[0], "%Y-%m-%d %H:%M:%S"))
                 labels_log_entry.append(tkinter.Label(print_log_window, text=(
                     "Card %s, logged out on the terminal %s at time %s and worked for %s" % (log_entry[1], log_entry[2], log_entry[0], time_worked))))
                 prev_entry = None
@@ -61,6 +62,8 @@ def process_message(message):
         connention.close()
 
         print_log_window.mainloop()
+
+        
 
 def create_main_window():
     window.geometry("250x100")
@@ -86,7 +89,10 @@ def disconnect_from_broker():
 
 
 def run_receiver():
+    global window
     connect_to_broker()
+    create_main_window()
+    window.mainloop()
     disconnect_from_broker()
 
 
